@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.csu.demo.demo.mapper.EventMapper">
+
+    <resultMap id="ItemScoreMap" type="com.csu.demo.demo.dto.ItemScoreDTO">
+        <result property="itemId" column="item_id"/>
+        <result property="totalScore" column="total_score"/>
+    </resultMap>
+
+    <select id="selectHotItemScores" resultMap="ItemScoreMap">
+        SELECT item_id,
+               SUM(score) AS total_score
+        FROM events
+        WHERE ts >= DATE_SUB(NOW(), INTERVAL #{hours} HOUR)
+        GROUP BY item_id
+        ORDER BY total_score DESC
+        LIMIT #{limit}
+    </select>
+    <select id="selectEventsWithinHours" resultType="com.csu.demo.demo.entity.Event">
+        SELECT 
+            id,
+            user_id,
+            item_id,
+            action,
+            score,
+            ts
+        FROM events
+        WHERE ts >= DATE_SUB(NOW(), INTERVAL #{hours} HOUR)
+        ORDER BY ts DESC
+    </select>
+</mapper>
