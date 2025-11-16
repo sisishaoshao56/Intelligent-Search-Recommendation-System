@@ -2,3 +2,33 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.csu.demo.demo.mapper.ItemMapper">
+
+    <select id="selectByTags" parameterType="map" resultType="com.csu.demo.demo.domain.Item">
+        SELECT id,
+               catagory,
+               tags_json,
+               embedding_string
+        FROM items
+        <where>
+            <choose>
+                <when test="tags != null and tags.size > 0">
+                    JSON_OVERLAPS(
+                            tags_json,
+                            JSON_ARRAY(
+                                    <foreach collection="tags" item="tag" separator=",">
+                                        #{tag}
+                                    </foreach>
+                            )
+                    )
+                </when>
+                <otherwise>
+                    1 = 0
+                </otherwise>
+            </choose>
+        </where>
+        ORDER BY id
+        <if test="limit &gt; 0">
+            LIMIT #{limit}
+        </if>
+    </select>
+</mapper>
