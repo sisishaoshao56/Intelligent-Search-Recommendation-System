@@ -1,7 +1,6 @@
 package com.csu.demo.demo.domain;
 
 import java.time.LocalDateTime;
-
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 
@@ -17,4 +16,5 @@ public class Event {
     private String action;
     private float score;
     private LocalDateTime ts;
+
 }

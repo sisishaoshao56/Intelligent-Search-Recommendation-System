@@ -10,7 +10,8 @@ import lombok.Data;
 public class Item {
     @TableId(value = "id")
     private int id;
-    private String catagory;
+    private String title;
     private String tags_json;
-    private String embedding_string;
+    private String path;
+    private String embedding_vector;
 }

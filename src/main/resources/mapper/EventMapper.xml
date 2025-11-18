@@ -17,7 +17,7 @@
         ORDER BY total_score DESC
         LIMIT #{limit}
     </select>
-    <select id="selectEventsWithinHours" resultType="com.csu.demo.demo.entity.Event">
+    <select id="selectEventsWithinHours" resultType="com.csu.demo.demo.domain.Event">
         SELECT 
             id,
             user_id,
@@ -28,5 +28,18 @@
         FROM events
         WHERE ts >= DATE_SUB(NOW(), INTERVAL #{hours} HOUR)
         ORDER BY ts DESC
+    </select>
+
+    <select id="selectEventsByUserId" resultType="com.csu.demo.demo.domain.Event">
+        SELECT 
+            id,
+            user_id,
+            item_id,
+            action,
+            score,
+            ts
+        FROM events
+        WHERE user_id = #{userId}
+        ORDER BY item_id DESC
     </select>
 </mapper>

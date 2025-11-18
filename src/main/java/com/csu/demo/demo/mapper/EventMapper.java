@@ -13,4 +13,5 @@ public interface EventMapper extends BaseMapper<Event> {
 
     List<ItemScoreDTO> selectHotItemScores(@Param("hours") int hours, @Param("limit") int limit);
     List<Event> selectEventsWihinHours(@Param("hours") int hours);
+    List<Event> selectEventsByUserId(@Param("id") int id);
 }

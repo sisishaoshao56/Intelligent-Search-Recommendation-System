@@ -150,7 +150,7 @@ public class RecommendationServiceImpl implements RecommendationService {
                     Collectors.toMap(Item::getId, it -> it, (a, b) -> a, LinkedHashMap::new)
             );
 
-            List<Item> ordered = new ArrayList<>();
+            List<Item> ordered = new ArrayList<>();//推荐的返回顺序
             for (Integer id : itemIds) {
                 Item it = map.get(id);
                 if (it != null && ordered.size() < limit) {

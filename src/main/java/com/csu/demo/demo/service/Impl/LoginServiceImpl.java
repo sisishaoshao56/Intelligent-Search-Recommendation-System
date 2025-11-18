@@ -1,4 +1,4 @@
-﻿package com.csu.demo.demo.service.Impl;
+package com.csu.demo.demo.service.Impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.csu.demo.demo.domain.User;
@@ -17,7 +17,7 @@ import java.util.UUID;
 public class LoginServiceImpl implements LoginService {
 
     private static final String TOKEN_PREFIX = "auth:token:";
-    private static final Duration TOKEN_TTL = Duration.ofHours(24);
+    private static final Duration TOKEN_TTL = Duration.ofHours(2);
 
     private final UserMapper userMapper;
     private final StringRedisTemplate stringRedisTemplate;
