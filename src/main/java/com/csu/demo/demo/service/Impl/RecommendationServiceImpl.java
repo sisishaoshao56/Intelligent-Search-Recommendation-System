@@ -171,7 +171,7 @@ public class RecommendationServiceImpl implements RecommendationService {
             return 0;
         }
         int matches = 0;
-        for (String tag : parseTags(item.getTags_json())) {
+        for (String tag : parseTags(item.getTagsJson())) {
             if (targets.contains(tag)) {
                 matches++;
             }

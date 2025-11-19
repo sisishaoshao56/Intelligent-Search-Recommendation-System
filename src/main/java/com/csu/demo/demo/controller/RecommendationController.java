@@ -31,14 +31,20 @@ public class RecommendationController {
 
     @GetMapping("/hot")
     public ResponseEntity<List<Item>> hotItems(@RequestParam(defaultValue = "20") int limit) {
-        List<Integer> ids = recommendationService.hotItemList(limit).stream().map(dto->dto.getItemId()).toList();
+        List<Integer> ids = recommendationService.hotItemList(limit).stream()
+            .map(dto -> dto.getItemId())
+            .filter(Objects::nonNull)
+            .toList();
+        if (ids.isEmpty()) {
+            return ResponseEntity.ok(List.of());
+        }
         List<Item> items = itemMapper.selectBatchIds(ids);
-        Map<Integer, Item> map = items.stream().collect(Collectors.toMap(item->item.getId(), item -> item, (a,b)->a, LinkedHashMap::new));
-        //维护次序
+        Map<Integer, Item> map = items.stream()
+            .collect(Collectors.toMap(Item::getId, item -> item, (a, b) -> a, LinkedHashMap::new));
         List<Item> ordered = ids.stream()
-                                .map(map::get)
-                                .filter(Objects::nonNull)
-                                .toList();
+            .map(map::get)
+            .filter(Objects::nonNull)
+            .toList();
         return ResponseEntity.ok(ordered);
     }
 

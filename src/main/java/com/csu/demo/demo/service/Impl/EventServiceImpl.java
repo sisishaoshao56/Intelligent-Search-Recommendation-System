@@ -63,9 +63,9 @@ public class EventServiceImpl implements EventService {
         Item item=itemMapper.selectById(event.getItem_id());
         ObjectMapper objectMapper=new ObjectMapper();
         try {
-            return objectMapper.readValue(item.getEmbedding_vector(), new TypeReference<List<Float>>() {});
+            return objectMapper.readValue(item.getEmbeddingVector(), new TypeReference<List<Float>>() {});
         } catch (Exception e) {
-            System.err.println("Event JSON 解析错误: " + item.getEmbedding_vector());
+            System.err.println("Event JSON 解析错误: " + item.getEmbeddingVector());
             e.printStackTrace(); 
             return Collections.emptyList();
         }

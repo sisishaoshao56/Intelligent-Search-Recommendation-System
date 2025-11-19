@@ -5,9 +5,10 @@
 
     <select id="selectByTags" parameterType="map" resultType="com.csu.demo.demo.domain.Item">
         SELECT id,
-               catagory,
+               title,
                tags_json,
-               embedding_string
+               path,
+               embedding_vector
         FROM items
         <where>
             <choose>

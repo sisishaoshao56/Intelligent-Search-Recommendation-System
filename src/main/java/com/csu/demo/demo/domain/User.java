@@ -14,6 +14,6 @@ public class User {
     private String password;
     private int age;
     private Boolean gender;
-    private String tags_json;
-
+    private String tagsJson;
+    private String embeddingVector;
 }

@@ -1,5 +1,6 @@
 package com.csu.demo.demo.domain;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 
@@ -11,7 +12,9 @@ public class Item {
     @TableId(value = "id")
     private int id;
     private String title;
-    private String tags_json;
+    @TableField("tags_json") 
+    private String tagsJson;
     private String path;
-    private String embedding_vector;
+    @TableField("embedding_vector") 
+    private String embeddingVector;
 }

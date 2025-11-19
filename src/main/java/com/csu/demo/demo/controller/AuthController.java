@@ -2,6 +2,8 @@ package com.csu.demo.demo.controller;
 
 import com.csu.demo.demo.domain.User;
 import com.csu.demo.demo.service.LoginService;
+import com.csu.demo.demo.service.UserService;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,14 +15,17 @@ import java.util.Map;
 public class AuthController {
 
     private final LoginService loginService;
+    private final UserService userService;
 
-    public AuthController(LoginService loginService) {
+    public AuthController(LoginService loginService,UserService userService) {
         this.loginService = loginService;
+        this.userService = userService;
     }
 
     @PostMapping("/register")
     public ResponseEntity<Map<String, String>> register(@RequestBody User user) {
         String token = loginService.register(user);
+        userService.initUserEmbedding(user.getId(),userService.tagsToVector(user.getTagsJson()));
         return ResponseEntity.ok(buildTokenResponse(token));
     }
 
