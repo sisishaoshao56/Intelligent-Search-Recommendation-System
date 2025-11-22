@@ -21,6 +21,7 @@ public class EventServiceImpl implements EventService {
 
     private static final String HOT_KEY = "hot:items";
     private static final Map<String, Double> ACTION_SCORES = Map.of(
+        "play", 1D,
         "click", 1D,
         "like", 2D
     );

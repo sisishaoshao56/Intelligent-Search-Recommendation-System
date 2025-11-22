@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import org.springframework.data.redis.core.StringRedisTemplate;
 
 @RestController
 @RequestMapping("/api/recommend")
@@ -23,10 +24,12 @@ public class RecommendationController {
     private final UserService userService;
     @Autowired
     private ItemMapper itemMapper;
+    private final StringRedisTemplate stringRedisTemplate;
 
-    public RecommendationController(RecommendationService recommendationService, UserService userService) {
+    public RecommendationController(RecommendationService recommendationService, UserService userService, StringRedisTemplate stringRedisTemplate) {
         this.recommendationService = recommendationService;
         this.userService = userService;
+        this.stringRedisTemplate = stringRedisTemplate;
     }
 
     @GetMapping("/hot")
@@ -49,11 +52,36 @@ public class RecommendationController {
     }
 
     @GetMapping("/embedding")
-    public ResponseEntity<List<Item>> recommendByEmbedding(@RequestParam int userId, @RequestParam(defaultValue = "20") int limit) {
+    public ResponseEntity<List<Item>> recommendByEmbedding(
+            @RequestHeader(value = "Authorization", required = false) String token,
+            @RequestParam(value = "userId", required = false) Integer userIdParam,
+            @RequestParam(defaultValue = "20") int limit) {
+
+        Integer userId = resolveUserId(token, userIdParam);
+        if (userId == null || userId <= 0) {
+            return hotItems(limit);
+        }
+
         List<Float> userEmbedding = userService.getUserEmbedding(userId);
         if (userEmbedding == null || userEmbedding.isEmpty()) {
             return hotItems(limit);
         }
         return ResponseEntity.ok(recommendationService.recommendByEmbedding(userEmbedding, limit));
+    }
+
+    private Integer resolveUserId(String token, Integer userIdParam) {
+        if (userIdParam != null && userIdParam > 0) {
+            return userIdParam;
+        }
+        if (token == null || token.isBlank()) {
+            return null;
+        }
+        String raw = token.startsWith("Bearer ") ? token.substring(7).trim() : token.trim();
+        try {
+            String userIdStr = stringRedisTemplate.opsForValue().get("auth:token:" + raw);
+            return (userIdStr != null && !userIdStr.isBlank()) ? Integer.valueOf(userIdStr) : null;
+        } catch (NumberFormatException e) {
+            return null;
+        }
     }
 }
