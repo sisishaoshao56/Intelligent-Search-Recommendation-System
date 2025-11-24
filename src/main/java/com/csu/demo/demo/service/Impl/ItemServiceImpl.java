@@ -5,6 +5,8 @@ import com.csu.demo.demo.domain.Item;
 import com.csu.demo.demo.mapper.ItemMapper;
 import com.csu.demo.demo.service.EventService;
 import com.csu.demo.demo.service.ItemService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.http.MediaType;
@@ -18,6 +20,8 @@ import java.util.Optional;
 
 @Service
 public class ItemServiceImpl implements ItemService {
+
+    private static final Logger log = LoggerFactory.getLogger(ItemServiceImpl.class);
 
     private final ItemMapper itemMapper;
     private final EventService eventService;
@@ -50,16 +54,16 @@ public class ItemServiceImpl implements ItemService {
         String filename = Paths.get(item.getPath()).getFileName().toString();
 
         if (userId != null && userId > 0) {
+            Event event = new Event();
+            event.setUser_id(userId);
+            event.setItem_id(itemId);
+            event.setAction("play");
+            event.setScore(1f);
+            event.setTs(LocalDateTime.now());
             try {
-                Event event = new Event();
-                event.setUser_id(userId);
-                event.setItem_id(itemId);
-                event.setAction("play");
-                event.setScore(1f);
-                event.setTs(LocalDateTime.now());
                 eventService.recordEvent(event);
-            } catch (Exception ignored) {
-                // 事件记录失败不影响播放
+            } catch (Exception e) {
+                log.warn("记录播放事件失败 userId={}, itemId={}", userId, itemId, e);
             }
         }
 

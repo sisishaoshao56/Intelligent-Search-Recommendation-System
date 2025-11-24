@@ -17,4 +17,6 @@ public class Item {
     private String path;
     @TableField("embedding_vector") 
     private String embeddingVector;
+    @TableField(exist = false)
+    private String thumbPath;
 }

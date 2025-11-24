@@ -3,8 +3,10 @@ package com.csu.demo.demo.service.Impl;
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch.core.SearchResponse;
 import com.csu.demo.demo.domain.Item;
+import com.csu.demo.demo.domain.ItemThumbnail;
 import com.csu.demo.demo.dto.ItemScoreDTO;
 import com.csu.demo.demo.mapper.ItemMapper;
+import com.csu.demo.demo.mapper.ItemThumbnailMapper;
 import com.csu.demo.demo.service.HotItemService;
 import com.csu.demo.demo.service.RecommendationService;
 import org.slf4j.Logger;
@@ -25,17 +27,20 @@ public class RecommendationServiceImpl implements RecommendationService {
 
     private final HotItemService hotItemService;
     private final ItemMapper itemMapper;
+    private final ItemThumbnailMapper itemThumbnailMapper;
     private final ElasticsearchClient esClient;
     private final String itemIndex;
 
     public RecommendationServiceImpl(
             HotItemService hotItemService,
             ItemMapper itemMapper,
+            ItemThumbnailMapper itemThumbnailMapper,
             ElasticsearchClient esClient,
             @Value("${elasticsearch.index.items}") String itemIndex) {
 
         this.hotItemService = hotItemService;
         this.itemMapper = itemMapper;
+        this.itemThumbnailMapper = itemThumbnailMapper;
         this.esClient = esClient;
         this.itemIndex = itemIndex;
     }
@@ -104,6 +109,7 @@ public class RecommendationServiceImpl implements RecommendationService {
             return Integer.compare(a.getId(), b.getId());
         });
 
+        attachThumbs(filtered);
         return filtered;
     }
     
@@ -146,6 +152,7 @@ public class RecommendationServiceImpl implements RecommendationService {
             }
 
             List<Item> items = itemMapper.selectBatchIds(itemIds);
+            attachThumbs(items);
             Map<Integer, Item> map = items.stream().collect(
                     Collectors.toMap(Item::getId, it -> it, (a, b) -> a, LinkedHashMap::new)
             );
@@ -208,5 +215,15 @@ public class RecommendationServiceImpl implements RecommendationService {
             return input.substring(1, input.length() - 1).trim();
         }
         return input.trim();
+    }
+
+    private void attachThumbs(List<Item> items) {
+        if (items == null || items.isEmpty()) {
+            return;
+        }
+        List<Integer> ids = items.stream().map(Item::getId).toList();
+        Map<Integer, String> thumbMap = itemThumbnailMapper.selectByItemIds(ids).stream()
+                .collect(Collectors.toMap(ItemThumbnail::getItemId, ItemThumbnail::getThumbPath, (a, b) -> a));
+        items.forEach(it -> it.setThumbPath(thumbMap.get(it.getId())));
     }
 }

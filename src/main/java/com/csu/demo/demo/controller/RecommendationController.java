@@ -1,6 +1,7 @@
 package com.csu.demo.demo.controller;
 
 import com.csu.demo.demo.domain.Item;
+import com.csu.demo.demo.domain.ItemThumbnail;
 import com.csu.demo.demo.service.RecommendationService;
 import com.csu.demo.demo.service.UserService;
 
@@ -8,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.csu.demo.demo.mapper.ItemMapper;
+import com.csu.demo.demo.mapper.ItemThumbnailMapper;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -24,6 +26,8 @@ public class RecommendationController {
     private final UserService userService;
     @Autowired
     private ItemMapper itemMapper;
+    @Autowired
+    private ItemThumbnailMapper itemThumbnailMapper;
     private final StringRedisTemplate stringRedisTemplate;
 
     public RecommendationController(RecommendationService recommendationService, UserService userService, StringRedisTemplate stringRedisTemplate) {
@@ -42,10 +46,18 @@ public class RecommendationController {
             return ResponseEntity.ok(List.of());
         }
         List<Item> items = itemMapper.selectBatchIds(ids);
+        Map<Integer, String> thumbMap = itemThumbnailMapper.selectByItemIds(ids).stream()
+                .collect(Collectors.toMap(ItemThumbnail::getItemId, ItemThumbnail::getThumbPath, (a, b) -> a));
         Map<Integer, Item> map = items.stream()
             .collect(Collectors.toMap(Item::getId, item -> item, (a, b) -> a, LinkedHashMap::new));
         List<Item> ordered = ids.stream()
-            .map(map::get)
+            .map(id -> {
+                Item it = map.get(id);
+                if (it != null) {
+                    it.setThumbPath(thumbMap.get(id));
+                }
+                return it;
+            })
             .filter(Objects::nonNull)
             .toList();
         return ResponseEntity.ok(ordered);
