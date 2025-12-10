@@ -1,6 +1,7 @@
 package com.csu.demo.demo.controller;
 
 import com.csu.demo.demo.domain.User;
+import com.csu.demo.demo.service.KafkaProducerService;
 import com.csu.demo.demo.service.LoginService;
 import com.csu.demo.demo.service.UserService;
 
@@ -16,16 +17,18 @@ public class AuthController {
 
     private final LoginService loginService;
     private final UserService userService;
+    private final KafkaProducerService kafkaProducerService;
 
-    public AuthController(LoginService loginService,UserService userService) {
+    public AuthController(LoginService loginService, UserService userService, KafkaProducerService kafkaProducerService) {
         this.loginService = loginService;
         this.userService = userService;
+        this.kafkaProducerService = kafkaProducerService;
     }
 
     @PostMapping("/register")
     public ResponseEntity<Map<String, String>> register(@RequestBody User user) {
         String token = loginService.register(user);
-        userService.initUserEmbedding(user.getId(),userService.tagsToVector(user.getTagsJson()));
+        kafkaProducerService.sendUserRegisteredEvent(user.getId(), user.getUsername());
         return ResponseEntity.ok(buildTokenResponse(token));
     }
 

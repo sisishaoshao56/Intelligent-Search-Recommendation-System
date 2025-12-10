@@ -33,7 +33,6 @@ public class LoginServiceImpl implements LoginService {
             throw new IllegalArgumentException("用户名和密码不能为空");
         }
         validateUsernameUnique(user.getUsername());
-
         user.setPassword(hashPassword(user.getPassword()));
         userMapper.insert(user);
         return generateAndCacheToken(user.getId());
